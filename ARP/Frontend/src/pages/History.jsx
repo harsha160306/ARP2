@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, HeadingLevel, AlignmentType } from 'docx';
 import { saveAs } from 'file-saver';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../utils/api';
 
 /* ------------------------------------------------------------------ */
 /* Mock data – used as fallback when backend is unreachable             */
@@ -79,12 +79,10 @@ export default function History() {
     setDataLoaded(false);
 
     try {
-      const token = localStorage.getItem('token');
       const today = new Date().toISOString().slice(0, 10);
 
-      const remRes = await axios.get('http://localhost:5000/api/remarks/history', {
-        params: { year: selectedYear, department: selectedDept, section: selectedSection, date: today },
-        headers: { Authorization: `Bearer ${token}` },
+      const remRes = await api.get('/remarks/history', {
+        params: { year: selectedYear, department: selectedDept, section: selectedSection, date: today }
       });
 
       if (remRes && remRes.data) {

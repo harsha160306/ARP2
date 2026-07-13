@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../utils/api';
 
 export default function RemarkScanner() {
   const [currentDate, setCurrentDate] = useState('');
@@ -106,10 +106,7 @@ export default function RemarkScanner() {
 
     // Try to fetch student from backend
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/students/register/${decodedText.trim()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`/students/register/${decodedText.trim()}`);
       
       const studentData = response.data.student;
       setScannedStudent(studentData);
@@ -138,7 +135,6 @@ export default function RemarkScanner() {
     }
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
       const remarkText = selectedRemark === 'Others' ? customRemark : selectedRemark;
       
       if (selectedRemark === 'Others' && !customRemark.trim()) {
@@ -147,12 +143,10 @@ export default function RemarkScanner() {
         return;
       }
 
-      await axios.post('http://localhost:5000/api/remarks', {
+      await api.post('/remarks', {
         student_id: scannedStudent.id,
         register_number: scannedStudent.register_number,
         remark_text: remarkText
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Remark submitted successfully.');
       setIsModalOpen(true);

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { toast } from 'react-hot-toast';
 import JsBarcode from 'jsbarcode';
 
@@ -118,9 +118,8 @@ export default function Registration() {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
       // 1. Submit to database
-      await axios.post('http://localhost:5000/api/students', {
+      await api.post('/students', {
         register_number: registerNumber.trim(),
         name: name.trim(),
         course,
@@ -133,8 +132,6 @@ export default function Registration() {
         email: email.trim(),
         phone: phone.trim(),
         photo_url: photoUrl
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
 
       // 2. Update card preview

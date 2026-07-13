@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { toast } from 'react-hot-toast';
 
 export default function RemarkPage() {
@@ -25,10 +25,7 @@ export default function RemarkPage() {
     setSelectedRemark('');
     setCustomRemark('');
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/students/register/${searchQuery.trim()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`/students/register/${searchQuery.trim()}`);
       setStudent(response.data.student);
       toast.success('Student record found!');
     } catch (err) {
@@ -77,13 +74,10 @@ export default function RemarkPage() {
 
     setIsSubmitting(true);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/remarks', {
+      await api.post('/remarks', {
         student_id: student.id,
         register_number: student.register_number,
         remark_text: remarkText
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Remark submitted successfully.');
       setIsModalOpen(true);
