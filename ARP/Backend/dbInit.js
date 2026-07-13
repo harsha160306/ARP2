@@ -26,21 +26,6 @@ const initializeDB = async () => {
       )
     `);
 
-    // Attendance Table
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS attendance (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        student_id INT NOT NULL,
-        date DATE NOT NULL,
-        status ENUM('Present', 'Absent', 'Late', 'On Duty', 'Medical Leave') NOT NULL,
-        recorded_by INT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-        FOREIGN KEY (recorded_by) REFERENCES users(id),
-        UNIQUE KEY unique_attendance_per_day (student_id, date)
-      )
-    `);
-
     // Remarks Table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS remarks (

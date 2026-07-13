@@ -40,7 +40,6 @@ if (!fs.existsSync(DB_FILE)) {
         photo_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCTuEzyi6BX288E_wzMVHXWMUOfXKPnfoPAH-0dsuJNUGciaHdnYoTT5IyMfM-JJZ7OW1ZV70AIG19OH-9tzOJmQq8qbSS0Xg34ph03JJs5GmH2skFMmBT1Xw7a2IL6TSpY0ftt8RCdDU_LuiAX1WBu9ZPaWZzIH6GwRQIVRSprKZ-2ZlDKud2OZ_VEYon1QNT90Cs_CwlzK6xDNIjcFck0Y3tFfIkkamZS7duB52mqHKmOgPa_uVfZVj72aDAEqz9luXXxnSkVE_YB' 
       }
     ],
-    attendance: [],
     remarks: []
   }, null, 2));
 }
@@ -116,38 +115,6 @@ const mockPool = {
       data.students.push(newRecord);
       writeData(data);
       return [{ insertId: newRecord.id }];
-    }
-
-    // 6. Insert attendance
-    if (cleanSql.startsWith('insert into attendance')) {
-      const [studentId, date, status, recordedBy] = params;
-      
-      // Check duplicate
-      const duplicate = data.attendance.find(a => a.student_id === studentId && a.date === date);
-      if (duplicate) {
-        const err = new Error('Duplicate entry');
-        err.code = 'ER_DUP_ENTRY';
-        throw err;
-      }
-
-      const newRecord = {
-        id: data.attendance.length + 1,
-        student_id: studentId,
-        date: date,
-        status: status,
-        recorded_by: recordedBy,
-        created_at: new Date().toISOString()
-      };
-      data.attendance.push(newRecord);
-      writeData(data);
-      return [{ insertId: newRecord.id }];
-    }
-
-    // 7. Check duplicate attendance explicitly
-    if (cleanSql.includes('select * from attendance where student_id = ? and date = ?')) {
-      const [studentId, date] = params;
-      const found = data.attendance.filter(a => a.student_id === studentId && a.date === date);
-      return [found];
     }
 
     // 8. Insert remark

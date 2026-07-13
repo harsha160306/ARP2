@@ -3,22 +3,13 @@ import { useAppContext } from '../context/AppContext';
 
 const CARDS = [
   {
-    to:          '/scan-options',
+    to:          '/remark-scanner',
     icon:        'qr_code_scanner',
     title:       'Open Scanner',
     subtitle:    'Scan barcode',
-    description: 'Launch the webcam scanner to verify student ID cards instantly for attendance or discipline remarks.',
+    description: 'Launch the webcam scanner to verify student ID cards instantly for discipline remarks.',
     cta:         'Open Scanner',
     accent:      'indigo',
-  },
-  {
-    to:          '/attendance',
-    icon:        'how_to_reg',
-    title:       'Attendance',
-    subtitle:    'Mark present / absent',
-    description: "Select year, department and section to load the class list and mark each student's attendance.",
-    cta:         'Open Attendance',
-    accent:      'blue',
   },
   {
     to:          '/remark',
@@ -38,12 +29,6 @@ const ACCENT = {
     cta:    'bg-indigo-600 hover:bg-indigo-700 text-white',
     glow:   'group-hover:bg-indigo-500/10',
   },
-  blue: {
-    icon:   'bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400',
-    bar:    'bg-blue-600',
-    cta:    'bg-blue-600 hover:bg-blue-700 text-white',
-    glow:   'group-hover:bg-blue-500/10',
-  },
   violet: {
     icon:   'bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400',
     bar:    'bg-violet-600',
@@ -55,16 +40,21 @@ const ACCENT = {
 const QUICK_LINKS = [
   { to: '/history',      icon: 'monitoring',   label: 'View History' },
   { to: '/registration', icon: 'person_add',   label: 'Enroll Student' },
-  { to: '/scan-options', icon: 'qr_code_scanner', label: 'Launch Scanner' },
+  { to: '/remark-scanner', icon: 'qr_code_scanner', label: 'Launch Scanner' },
 ];
 
 export default function Home() {
   const { user } = useAppContext();
   const userName = user?.name || localStorage.getItem('userName') || 'User';
+  const userRole = user?.role || localStorage.getItem('userRole') || 'Staff';
   const now = new Date();
   const hour = now.getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const dateStr = now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  const allowedCards = CARDS;
+
+  const allowedQuickLinks = QUICK_LINKS;
 
   return (
     <div className="flex-1 p-5 md:p-8 xl:p-12 overflow-y-auto w-full">
@@ -89,7 +79,7 @@ export default function Home() {
 
         {/* ── Action cards ─────────────────────────────────────── */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {CARDS.map((card) => {
+          {allowedCards.map((card) => {
             const a = ACCENT[card.accent];
             return (
               <div
@@ -155,7 +145,7 @@ export default function Home() {
         <div>
           <h3 className="font-display font-semibold text-[14px] text-on-surface-variant uppercase tracking-widest mb-4">Quick Access</h3>
           <div className="flex flex-wrap gap-3">
-            {QUICK_LINKS.map((q) => (
+            {allowedQuickLinks.map((q) => (
               <Link
                 key={q.to}
                 to={q.to}

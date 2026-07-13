@@ -18,11 +18,12 @@ export default function Layout({ children }) {
   const navLinks = [
     { path: '/home',         icon: 'space_dashboard',  label: 'Dashboard'    },
     { path: '/registration', icon: 'person_add',       label: 'Enrollment'   },
-    { path: '/scan-options', icon: 'qr_code_scanner',  label: 'Scanner'      },
-    { path: '/attendance',   icon: 'how_to_reg',       label: 'Attendance'   },
+    { path: '/remark-scanner', icon: 'qr_code_scanner',  label: 'Scanner'      },
     { path: '/remark',       icon: 'rate_review',      label: 'Remarks'      },
     { path: '/history',      icon: 'monitoring',       label: 'History'      },
   ];
+
+  const filteredNavLinks = navLinks;
 
   const currentPage = navLinks.find(l => location.pathname.startsWith(l.path))?.label || 'Dashboard';
 
@@ -68,7 +69,7 @@ export default function Layout({ children }) {
 
         {/* Nav links */}
         <div className="flex-1 overflow-y-auto py-4 space-y-1 px-3">
-          {navLinks.map((link) => {
+          {filteredNavLinks.map((link) => {
             const isActive = location.pathname.startsWith(link.path);
             return (
               <Link

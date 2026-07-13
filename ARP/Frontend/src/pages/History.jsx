@@ -19,19 +19,13 @@ const REMARK_TYPES = ['Non-uniform', 'Late-comer', 'Indiscipline', 'Others'];
 function buildMock(dept, year, section) {
   const prefix = dept.substring(0, 2).toUpperCase();
   const count = 10 + Math.floor(Math.random() * 8);
-  const presentList = [];
   const remarkList  = [];
 
   for (let i = 0; i < count; i++) {
     const regNo  = `2024${prefix}${String(i + 1).padStart(3, '0')}`;
     const name   = MOCK_NAMES[i % MOCK_NAMES.length];
-    const status = Math.random() > 0.3 ? 'Present' : 'Absent';
 
-    if (status === 'Present') {
-      presentList.push({ name, registerNumber: regNo });
-    }
-
-    if (Math.random() > 0.7) {
+    if (Math.random() > 0.6) {
       remarkList.push({
         name,
         registerNumber: regNo,
@@ -40,7 +34,7 @@ function buildMock(dept, year, section) {
     }
   }
 
-  return { presentList, remarkList, totalStudents: count };
+  return { remarkList, totalStudents: count };
 }
 
 /* ------------------------------------------------------------------ */
@@ -58,14 +52,11 @@ export default function History() {
   const [selectedSection, setSelectedSection] = useState('');
 
   /* ── data state ────────────────────────────────────────────── */
-  const [presentList,   setPresentList]   = useState([]);
   const [remarkList,    setRemarkList]    = useState([]);
-  const [totalStudents, setTotalStudents] = useState(0);
   const [dataLoaded,    setDataLoaded]    = useState(false);
 
   /* ── UI toggles ────────────────────────────────────────────── */
-  const [showPresent,  setShowPresent]  = useState(false);
-  const [showRemarks,  setShowRemarks]  = useState(false);
+  const [showRemarks,  setShowRemarks]  = useState(true);
   const [isFetching,   setIsFetching]   = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -91,38 +82,25 @@ export default function History() {
       const token = localStorage.getItem('token');
       const today = new Date().toISOString().slice(0, 10);
 
-      const [attRes, remRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/attendance/history', {
-          params: { year: selectedYear, department: selectedDept, section: selectedSection, date: today },
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => null),
-        axios.get('http://localhost:5000/api/remarks/history', {
-          params: { year: selectedYear, department: selectedDept, section: selectedSection, date: today },
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => null),
-      ]);
+      const remRes = await axios.get('http://localhost:5000/api/remarks/history', {
+        params: { year: selectedYear, department: selectedDept, section: selectedSection, date: today },
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      if (attRes && attRes.data) {
-        const pList = (attRes.data.records || [])
-          .filter(r => r.status === 'Present')
-          .map(r => ({ name: r.name, registerNumber: r.register_number }));
-        const rList = (remRes?.data?.records || [])
+      if (remRes && remRes.data) {
+        const rList = (remRes.data.records || [])
           .map(r => ({ name: r.name, registerNumber: r.register_number, remark: r.remark }));
 
-        setPresentList(pList);
         setRemarkList(rList);
-        setTotalStudents(attRes.data.total || pList.length + 5);
         setDataLoaded(true);
-        toast.success('Today\'s history loaded.');
+        toast.success('Today\'s remarks loaded.');
       } else {
         throw new Error('Backend unavailable');
       }
-    } catch {
+    } catch (dbError) {
       // Fallback
       const mock = buildMock(selectedDept, selectedYear, selectedSection);
-      setPresentList(mock.presentList);
       setRemarkList(mock.remarkList);
-      setTotalStudents(mock.totalStudents);
       setDataLoaded(true);
       toast.success('Today\'s history loaded (demo data).');
     } finally {
@@ -166,25 +144,12 @@ export default function History() {
           properties: {},
           children: [
             new Paragraph({ text: 'MODERN INSTITUTE COLLEGE', heading: HeadingLevel.HEADING_1, alignment: AlignmentType.CENTER }),
-            new Paragraph({ text: "Today's Attendance & Remarks Report", heading: HeadingLevel.HEADING_2, alignment: AlignmentType.CENTER }),
+            new Paragraph({ text: "Today's Disciplinary Remarks Report", heading: HeadingLevel.HEADING_2, alignment: AlignmentType.CENTER }),
             new Paragraph({ text: '' }),
             new Paragraph({ children: [new TextRun({ text: 'Date: ', bold: true }), new TextRun(todayLabel)] }),
             new Paragraph({ children: [new TextRun({ text: 'Year: ', bold: true }), new TextRun(selectedYear)] }),
             new Paragraph({ children: [new TextRun({ text: 'Department: ', bold: true }), new TextRun(selectedDept)] }),
             new Paragraph({ children: [new TextRun({ text: 'Section: ', bold: true }), new TextRun(selectedSection)] }),
-            new Paragraph({ text: '' }),
-
-            new Paragraph({ text: `Attendance Summary`, heading: HeadingLevel.HEADING_3 }),
-            new Paragraph({ children: [new TextRun({ text: 'Total Students: ', bold: true }), new TextRun(String(totalStudents))] }),
-            new Paragraph({ children: [new TextRun({ text: 'Total Present: ', bold: true }), new TextRun(String(presentList.length))] }),
-            new Paragraph({ children: [new TextRun({ text: 'Total Absent: ', bold: true }), new TextRun(String(totalStudents - presentList.length))] }),
-            new Paragraph({ text: '' }),
-
-            new Paragraph({ text: 'Present Students', heading: HeadingLevel.HEADING_3 }),
-            makeTable(
-              presentList.map((s, i) => [i + 1, s.name, s.registerNumber]),
-              ['#', 'Student Name', 'Register No']
-            ),
             new Paragraph({ text: '' }),
 
             new Paragraph({ text: `Remarks Summary (${remarkList.length} records)`, heading: HeadingLevel.HEADING_3 }),
@@ -200,7 +165,7 @@ export default function History() {
       });
 
       const blob = await Packer.toBlob(doc);
-      saveAs(blob, `Attendance_Report_${selectedDept}_${selectedSection}_${new Date().toISOString().slice(0, 10)}.docx`);
+      saveAs(blob, `Remarks_Report_${selectedDept}_${selectedSection}_${new Date().toISOString().slice(0, 10)}.docx`);
       toast.success('Word document downloaded!');
     } catch (err) {
       console.error(err);
@@ -219,10 +184,10 @@ export default function History() {
         <div className="text-center">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-primary mb-2 tracking-tight flex items-center justify-center gap-3">
             <span className="material-symbols-outlined text-3xl md:text-4xl">history</span>
-            Attendance & Remarks History
+            Remarks History
           </h1>
           <p className="font-body text-on-surface-variant text-base">
-            View today's attendance summary and remarks by year, department, and section.
+            View today's student disciplinary remarks by year, department, and section.
           </p>
           <div className="mt-2 inline-flex items-center gap-2 px-4 py-1.5 bg-surface-container rounded-full text-xs font-label font-semibold text-on-surface-variant">
             <span className="material-symbols-outlined text-sm">today</span>
@@ -301,23 +266,7 @@ export default function History() {
         {/* ── Summary Cards ───────────────────────────────────────────── */}
         {dataLoaded && (
           <div className="animate-fade-in space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Present Count Card */}
-              <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
-                <span className="font-label text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-widest mb-3">
-                  Today's Attendance
-                </span>
-                <div className="text-5xl font-black text-blue-600 dark:text-blue-400 my-3 flex items-center gap-3">
-                  <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>how_to_reg</span>
-                  {presentList.length}
-                </div>
-                <div className="font-body text-sm text-blue-600 dark:text-blue-300 font-semibold">Students Present</div>
-                <div className="mt-2 text-xs font-label text-blue-500/80 dark:text-blue-400/70">
-                  out of {totalStudents} total · {totalStudents - presentList.length} absent
-                </div>
-              </div>
-
+            <div className="max-w-md mx-auto">
               {/* Remarks Count Card */}
               <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 rounded-3xl p-6 flex flex-col items-center justify-center text-center shadow-sm relative overflow-hidden">
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/10 rounded-full blur-2xl pointer-events-none" />
@@ -335,53 +284,6 @@ export default function History() {
               </div>
             </div>
 
-            {/* ── Present Students Dropdown ─────────────────────────────── */}
-            <div className="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl overflow-hidden shadow-sm">
-              <button
-                onClick={() => setShowPresent(p => !p)}
-                className="w-full px-6 py-4 flex items-center justify-between font-display font-semibold text-on-surface hover:bg-surface-container-low transition-colors text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center">
-                    <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                  </span>
-                  <span>Present Students
-                    <span className="ml-2 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-label font-bold rounded-full">
-                      {presentList.length}
-                    </span>
-                  </span>
-                </div>
-                <span className={`material-symbols-outlined transition-transform duration-300 text-outline ${showPresent ? 'rotate-180' : ''}`}>
-                  keyboard_arrow_down
-                </span>
-              </button>
-
-              {showPresent && (
-                <div className="border-t border-outline-variant/15 p-4 md:p-5 bg-surface/50 animate-fade-in max-h-72 overflow-y-auto">
-                  {presentList.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {presentList.map((s, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm">
-                          <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center font-bold text-sm shrink-0">
-                            {s.name.charAt(0)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-body text-sm font-semibold text-on-surface truncate">{s.name}</div>
-                            <div className="font-label text-xs text-on-surface-variant truncate">{s.registerNumber}</div>
-                          </div>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-label font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 shrink-0">
-                            Present
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-sm text-on-surface-variant py-4">No present records for today.</p>
-                  )}
-                </div>
-              )}
-            </div>
-
             {/* ── Remarks Students Dropdown ─────────────────────────────── */}
             <div className="bg-surface-container-lowest border border-outline-variant/15 rounded-2xl overflow-hidden shadow-sm">
               <button
@@ -393,7 +295,7 @@ export default function History() {
                     <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>comment</span>
                   </span>
                   <span>Remark Students
-                    <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-label font-bold rounded-full">
+                    <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-green-300 text-xs font-label font-bold rounded-full">
                       {remarkList.length}
                     </span>
                   </span>
