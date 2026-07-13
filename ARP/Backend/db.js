@@ -132,6 +132,60 @@ const mockPool = {
       return [{ insertId: newRecord.id }];
     }
 
+    // 9. Select remarks history with joins and parameters
+    if (cleanSql.includes('select') && cleanSql.includes('from remarks') && cleanSql.includes('join students')) {
+      const searchDate = params[0];
+      const recordedBy = params[1];
+      
+      let filterYear = null;
+      let filterDept = null;
+      let filterSec = null;
+      
+      let paramIdx = 2;
+      if (cleanSql.includes('s.academic_year = ?')) {
+        filterYear = params[paramIdx++];
+      }
+      if (cleanSql.includes('s.department = ?')) {
+        filterDept = params[paramIdx++];
+      }
+      if (cleanSql.includes('s.section = ?')) {
+        filterSec = params[paramIdx++];
+      }
+
+      const results = [];
+      data.remarks.forEach(r => {
+        const dateMatch = r.created_at.startsWith(searchDate);
+        const userMatch = Number(r.recorded_by) === Number(recordedBy);
+        
+        if (dateMatch && userMatch) {
+          const s = data.students.find(student => student.id === r.student_id);
+          if (s) {
+            const yearMatch = !filterYear || s.academic_year === filterYear;
+            const deptMatch = !filterDept || s.department === filterDept;
+            const secMatch = !filterSec || s.section === filterSec;
+            
+            if (yearMatch && deptMatch && secMatch) {
+              results.push({
+                id: r.id,
+                student_id: r.student_id,
+                remark_text: r.remark_text,
+                remark: r.remark_text,
+                recorded_by: r.recorded_by,
+                created_at: r.created_at,
+                name: s.name,
+                register_number: s.register_number,
+                course: s.course || 'BTech',
+                department: s.department,
+                academic_year: s.academic_year,
+                section: s.section
+              });
+            }
+          }
+        }
+      });
+      return [results];
+    }
+
     console.warn('Unhandled mock query:', sql, params);
     return [[]];
   }

@@ -105,11 +105,20 @@ export default function RemarkPage() {
   return (
     <>
       <div className="flex-1 w-full p-4 md:p-8 lg:p-12 max-w-5xl mx-auto flex flex-col min-h-[calc(100vh-4rem)] relative overflow-x-hidden">
-        <header className="mb-8 md:mb-10 text-center md:text-left">
-          <h1 className="font-display font-bold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Remarks Management</h1>
-          <p className="font-body text-on-surface-variant text-base md:text-lg leading-relaxed">
-            Record student disciplinary remarks. You can either use the live camera scanner or look up the student manually.
-          </p>
+        <header className="mb-8 md:mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-center md:text-left">
+          <div className="flex-1">
+            <h1 className="font-display font-bold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Remarks Management</h1>
+            <p className="font-body text-on-surface-variant text-base md:text-lg leading-relaxed">
+              Record student disciplinary remarks. You can either use the live camera scanner or look up the student manually.
+            </p>
+          </div>
+          <Link 
+            to="/history" 
+            className="self-center md:self-auto flex items-center justify-center gap-2 px-5 py-3 border border-outline-variant/35 rounded-xl font-label font-semibold text-sm hover:bg-primary/5 hover:text-primary transition-all shadow-sm shrink-0"
+          >
+            <span className="material-symbols-outlined text-base">history</span>
+            View Remarks History
+          </Link>
         </header>
 
         {/* Start Scan Button Section */}
@@ -318,10 +327,18 @@ export default function RemarkPage() {
           </p>
           <div className="w-full space-y-3 md:space-y-4">
             <button 
-              className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-3.5 md:py-4 rounded-xl font-label font-bold text-base md:text-lg shadow-sm hover:shadow-md transition-all" 
+              className="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-3.5 md:py-4 rounded-xl font-label font-bold text-base md:text-lg shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2" 
               onClick={handleNextSearch}
             >
+              <span className="material-symbols-outlined text-[18px]">search</span>
               Search Another Student
+            </button>
+            <button 
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 md:py-4 rounded-xl font-label font-semibold text-base transition-all flex items-center justify-center gap-2 shadow-sm" 
+              onClick={() => navigate('/history')}
+            >
+              <span className="material-symbols-outlined text-[18px]">history</span>
+              View Remarks History
             </button>
             <button 
               className="w-full bg-surface-container-high text-on-surface py-3.5 md:py-4 rounded-xl font-label font-semibold text-base hover:bg-surface-variant transition-colors" 

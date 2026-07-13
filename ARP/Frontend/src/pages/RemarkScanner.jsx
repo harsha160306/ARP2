@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { toast } from 'react-hot-toast';
 import api from '../utils/api';
@@ -177,20 +177,29 @@ export default function RemarkScanner() {
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 md:mb-10 gap-4">
         <div>
           <button
-            onClick={() => navigate('/scan-options')}
+            onClick={() => navigate('/home')}
             className="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary mb-3 font-label font-medium text-xs transition-colors px-2 py-1 rounded hover:bg-primary/5"
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span>
-            Back to Options
+            Back to Dashboard
           </button>
           <h1 className="font-display font-bold text-3xl md:text-4xl text-on-surface tracking-tight mb-2">Start Remark Scan</h1>
           <p className="font-body text-on-surface-variant max-w-2xl text-base leading-relaxed">Position the barcode inside the target zone to record a disciplinary remark.</p>
         </div>
-        <div className="bg-surface-container-lowest border border-outline-variant/15 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 w-full md:w-auto shrink-0">
-          <span className="material-symbols-outlined text-primary">calendar_clock</span>
-          <div className="flex flex-col">
-            <span className="font-label text-sm text-on-surface font-semibold">{currentDate}</span>
-            <span className="font-body text-xs text-on-surface-variant">{currentTime}</span>
+        <div className="flex items-center gap-3 self-center md:self-auto shrink-0 flex-wrap">
+          <Link 
+            to="/history" 
+            className="flex items-center justify-center gap-2 px-5 py-3 border border-outline-variant/35 rounded-xl font-label font-semibold text-sm hover:bg-primary/5 hover:text-primary transition-all shadow-sm shrink-0"
+          >
+            <span className="material-symbols-outlined text-base">history</span>
+            View Remarks History
+          </Link>
+          <div className="bg-surface-container-lowest border border-outline-variant/15 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3">
+            <span className="material-symbols-outlined text-primary">calendar_clock</span>
+            <div className="flex flex-col">
+              <span className="font-label text-sm text-on-surface font-semibold">{currentDate}</span>
+              <span className="font-body text-xs text-on-surface-variant">{currentTime}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -381,12 +390,28 @@ export default function RemarkScanner() {
             <p className="font-body text-sm text-on-surface-variant mb-6 leading-relaxed">
               Remark submitted successfully.
             </p>
-            <button
-              onClick={handleScanNext}
-              className="w-full bg-primary hover:bg-primary/90 text-on-primary py-3.5 rounded-xl font-label font-bold text-sm transition-colors shadow-sm active:scale-95"
-            >
-              Scan Again
-            </button>
+            <div className="w-full space-y-3">
+              <button
+                onClick={handleScanNext}
+                className="w-full bg-primary hover:bg-primary/90 text-on-primary py-3 rounded-xl font-label font-bold text-sm transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">photo_camera</span>
+                Scan Again
+              </button>
+              <button
+                onClick={() => navigate('/history')}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-label font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+              >
+                <span className="material-symbols-outlined text-sm">history</span>
+                View Remarks History
+              </button>
+              <button
+                onClick={() => navigate('/home')}
+                className="w-full bg-surface-container-high text-on-surface py-3 rounded-xl font-label font-semibold text-sm hover:bg-surface-variant transition-colors"
+              >
+                Return to Home
+              </button>
+            </div>
           </div>
         </div>
       )}
