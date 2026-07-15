@@ -9,7 +9,7 @@ node_modules/
 .env.production.local
 
 # Databases
-db.json
+
 
 # Logs
 logs
