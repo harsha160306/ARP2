@@ -191,26 +191,35 @@ const mockPool = {
   }
 };
 
-let pool;
-try {
-  const tempPool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'mic_attendance',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+let activePool = mockPool;
+
+const dbConfig = {
+  host: process.env.MYSQL_ADDON_HOST || process.env.DB_HOST || 'localhost',
+  user: process.env.MYSQL_ADDON_USER || process.env.DB_USER || 'root',
+  password: process.env.MYSQL_ADDON_PASSWORD || process.env.DB_PASSWORD || '',
+  database: process.env.MYSQL_ADDON_DB || process.env.DB_NAME || 'mic_attendance',
+  port: parseInt(process.env.MYSQL_ADDON_PORT || '3306', 10),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+};
+
+const tempPool = mysql.createPool(dbConfig);
+
+// Verify connection in background to avoid blocking server boot/deployments
+tempPool.getConnection()
+  .then((connection) => {
+    connection.release();
+    activePool = tempPool;
+    console.log('Connected to MySQL successfully.');
+  })
+  .catch((err) => {
+    console.warn('MySQL unavailable. Falling back to local file-based database (db.json):', err.message);
+    activePool = mockPool;
   });
 
-  // Verify connection
-  const connection = await tempPool.getConnection();
-  connection.release();
-  pool = tempPool;
-  console.log('Connected to MySQL successfully.');
-} catch (err) {
-  console.warn('MySQL unavailable. Falling back to local file-based database (db.json):', err.message);
-  pool = mockPool;
-}
+const pool = {
+  query: (sql, params) => activePool.query(sql, params)
+};
 
 export default pool;
