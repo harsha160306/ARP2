@@ -32,6 +32,8 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('token', token);
     localStorage.setItem('userRole', userData.role);
     localStorage.setItem('userName', userData.name);
+    localStorage.setItem('userDepartment', userData.department || '');
+    localStorage.setItem('userId', String(userData.id));
   };
 
   const logout = () => {
@@ -40,6 +42,8 @@ export const AppProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userName');
+    localStorage.removeItem('userDepartment');
+    localStorage.removeItem('userId');
   };
 
   const toggleTheme = () => {

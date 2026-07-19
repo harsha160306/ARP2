@@ -9,7 +9,6 @@ export const recordRemark = async (req, res) => {
       return res.status(400).json({ message: 'Register number and remark text are required.' });
     }
 
-    // 1. Find student ID if not provided (e.g. offline/mock scanner)
     let sId = student_id;
     if (!sId) {
       const [students] = await pool.query('SELECT * FROM students WHERE register_number = ?', [register_number]);
@@ -19,7 +18,6 @@ export const recordRemark = async (req, res) => {
       sId = students[0].id;
     }
 
-    // 2. Insert record
     await pool.query(
       'INSERT INTO remarks (student_id, remark_text, recorded_by) VALUES (?, ?, ?)',
       [sId, remark_text, recorded_by]
@@ -32,43 +30,64 @@ export const recordRemark = async (req, res) => {
   }
 };
 
+// ─── GET /api/remarks/history ─────────────────────────────────────────────────
+// HOD: returns all incharges' remarks for HOD's department today
+// Incharge: returns own remarks for today
 export const getRemarksHistory = async (req, res) => {
   try {
-    const { year, department, section, date } = req.query;
-    const recorded_by = req.user.id;
-    const searchDate = date || new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const { year, department, semester, section, date, startDate, endDate } = req.query;
+    const userRole   = req.user.role;
+    const userId     = req.user.id;
+    const userDept   = department || req.user.department;
 
-    // Fetch remarks recorded by this user today, joined with student details
-    // We construct the query. If database is MySQL, we run standard SQL JOIN query.
-    // The query is simulated in mockPool inside db.js if MySQL is unavailable.
+    let dateCondition = 'DATE(r.created_at) = ?';
+    let dateParams = [date || new Date().toISOString().slice(0, 10)];
+
+    if (startDate && endDate) {
+      dateCondition = 'DATE(r.created_at) BETWEEN ? AND ?';
+      dateParams = [startDate, endDate];
+    }
+
     let queryStr = `
-      SELECT r.*, s.name, s.register_number, s.course, s.department, s.academic_year, s.section 
+      SELECT r.*, u.name as incharge_name, s.name, s.register_number, s.course, s.department, s.academic_year, s.semester, s.section 
       FROM remarks r 
       JOIN students s ON r.student_id = s.id 
-      WHERE DATE(r.created_at) = ? AND r.recorded_by = ?
+      LEFT JOIN users u ON r.recorded_by = u.id
+      WHERE ${dateCondition}
     `;
-    const queryParams = [searchDate, recorded_by];
+    const queryParams = [...dateParams];
 
-    // Filter by year if provided
+    if (userRole === 'HOD') {
+      if (userDept) {
+        queryStr += ' AND s.department = ?';
+        queryParams.push(userDept);
+      }
+    } else {
+      queryStr += ' AND r.recorded_by = ?';
+      queryParams.push(userId);
+    }
+
+    // Apply additional filters
     if (year) {
       queryStr += ' AND s.academic_year = ?';
       queryParams.push(year);
     }
-    // Filter by department if provided
-    if (department) {
-      queryStr += ' AND s.department = ?';
-      queryParams.push(department);
+    if (semester) {
+      queryStr += ' AND s.semester = ?';
+      queryParams.push(semester);
     }
-    // Filter by section if provided
     if (section) {
       queryStr += ' AND s.section = ?';
       queryParams.push(section);
     }
 
+    // Add ordering
+    queryStr += ' ORDER BY r.created_at DESC';
+
     const [rows] = await pool.query(queryStr, queryParams);
 
     res.status(200).json({
-      date: searchDate,
+      date: date || (startDate && endDate ? `${startDate} to ${endDate}` : new Date().toISOString().slice(0, 10)),
       total: rows.length,
       records: rows
     });

@@ -3,13 +3,28 @@ import pool from '../db.js';
 export const getStudentByRegisterNumber = async (req, res) => {
   try {
     const { registerNumber } = req.params;
-    const [students] = await pool.query('SELECT * FROM students WHERE register_number = ?', [registerNumber]);
+    const searchTerm = `%${registerNumber}%`;
+    const [students] = await pool.query(
+      'SELECT * FROM students WHERE register_number = ? OR name LIKE ?',
+      [registerNumber, searchTerm]
+    );
 
     if (students.length === 0) {
       return res.status(404).json({ message: 'Student not found.' });
     }
+    
+    const student = students[0];
 
-    res.status(200).json({ student: students[0] });
+    const [remarks] = await pool.query(
+      `SELECT r.*, u.name as incharge_name 
+       FROM remarks r 
+       LEFT JOIN users u ON r.recorded_by = u.id 
+       WHERE r.student_id = ? 
+       ORDER BY r.created_at DESC`,
+      [student.id]
+    );
+
+    res.status(200).json({ student, remarks });
   } catch (error) {
     console.error('Fetch student error:', error);
     res.status(500).json({ message: 'Internal server error.' });
@@ -40,6 +55,38 @@ export const registerStudent = async (req, res) => {
       return res.status(400).json({ message: 'Registration number already exists.' });
     }
     console.error('Register student error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+export const getRepeatOffenders = async (req, res) => {
+  try {
+    const userRole = req.user.role;
+    const userDept = req.user.department;
+
+    let queryStr = `
+      SELECT s.id, s.name, s.register_number, s.department, s.photo_url, count(r.id) as remark_count
+      FROM students s
+      JOIN remarks r ON s.id = r.student_id
+    `;
+    let queryParams = [];
+
+    if (userRole === 'HOD') {
+      queryStr += ' WHERE s.department = ?';
+      queryParams.push(userDept);
+    }
+
+    queryStr += `
+      GROUP BY s.id
+      HAVING remark_count > 1
+      ORDER BY remark_count DESC
+      LIMIT 20
+    `;
+
+    const [rows] = await pool.query(queryStr, queryParams);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Fetch repeat offenders error:', error);
     res.status(500).json({ message: 'Internal server error.' });
   }
 };

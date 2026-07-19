@@ -13,6 +13,97 @@
       "password": "Incharge@123",
       "role": "Incharge",
       "name": "MIC Incharge"
+    },
+    {
+      "id": 1,
+      "username": "hod_cse",
+      "password": "HOD@cse123",
+      "role": "HOD",
+      "name": "Dr. R. Kavitha",
+      "department": "CSE",
+      "phone": "9500011001",
+      "employee_id": "HOD001",
+      "email": "hod_cse@mic.edu",
+      "status": "Active",
+      "designation": "HOD"
+    },
+    {
+      "id": 2,
+      "username": "hod_ece",
+      "password": "HOD@ece123",
+      "role": "HOD",
+      "name": "Dr. S. Rajkumar",
+      "department": "ECE",
+      "phone": "9500011002",
+      "employee_id": "HOD002",
+      "email": "hod_ece@mic.edu",
+      "status": "Active",
+      "designation": "HOD"
+    },
+    {
+      "id": 3,
+      "username": "hod_mech",
+      "password": "HOD@mech123",
+      "role": "HOD",
+      "name": "Dr. M. Priya",
+      "department": "Mechanical",
+      "phone": "9500011003",
+      "employee_id": "HOD003",
+      "email": "hod_mech@mic.edu",
+      "status": "Active",
+      "designation": "HOD"
+    },
+    {
+      "id": 4,
+      "username": "incharge_cse1",
+      "password": "Inc@cse1",
+      "role": "Incharge",
+      "name": "Mr. A. Senthil",
+      "department": "CSE",
+      "phone": "9500012001",
+      "employee_id": "INC001",
+      "email": "incharge_cse1@mic.edu",
+      "status": "Active",
+      "designation": "Assistant Professor"
+    },
+    {
+      "id": 5,
+      "username": "incharge_cse2",
+      "password": "Inc@cse2",
+      "role": "Incharge",
+      "name": "Ms. B. Divya",
+      "department": "CSE",
+      "phone": "9500012002",
+      "employee_id": "INC002",
+      "email": "incharge_cse2@mic.edu",
+      "status": "Active",
+      "designation": "Assistant Professor"
+    },
+    {
+      "id": 6,
+      "username": "incharge_ece1",
+      "password": "Inc@ece1",
+      "role": "Incharge",
+      "name": "Mr. C. Rajan",
+      "department": "ECE",
+      "phone": "9500012003",
+      "employee_id": "INC003",
+      "email": "incharge_ece1@mic.edu",
+      "status": "Active",
+      "designation": "Assistant Professor"
+    },
+    {
+      "id": 7,
+      "username": "admin",
+      "password": "Admin@123",
+      "role": "Admin",
+      "name": "System Admin",
+      "department": "",
+      "phone": "9500011000",
+      "employee_id": "ADM001",
+      "email": "admin@mic.edu",
+      "status": "Active",
+      "designation": "Administrator"
     }
   ],
   "students": [
@@ -429,6 +520,96 @@
       "phone": "9876543009",
       "photo_url": null,
       "created_at": "2026-07-12T06:31:48.986Z"
+    },
+    {
+      "id": 3,
+      "register_number": "2024CS102",
+      "name": "Priya Patel",
+      "course": "B.Tech",
+      "department": "CSE",
+      "academic_year": "1st Year",
+      "validity": "2028",
+      "section": "A",
+      "semester": "I",
+      "email": "priya@gmail.com",
+      "phone": "9876543212",
+      "photo_url": null,
+      "created_at": "2026-07-18T06:06:11.666Z"
+    },
+    {
+      "id": 4,
+      "register_number": "2024EC011",
+      "name": "Vikram Singh",
+      "course": "B.Tech",
+      "department": "ECE",
+      "academic_year": "2nd Year",
+      "validity": "2028",
+      "section": "B",
+      "semester": "III",
+      "email": "vikram@gmail.com",
+      "phone": "9876543213",
+      "photo_url": null,
+      "created_at": "2026-07-18T06:06:11.666Z"
+    },
+    {
+      "id": 5,
+      "register_number": "2024CS103",
+      "name": "Sneha Reddy",
+      "course": "B.Tech",
+      "department": "CSE",
+      "academic_year": "3rd Year",
+      "validity": "2027",
+      "section": "B",
+      "semester": "V",
+      "email": "sneha@gmail.com",
+      "phone": "9876543214",
+      "photo_url": null,
+      "created_at": "2026-07-18T06:06:11.666Z"
+    },
+    {
+      "id": 6,
+      "register_number": "2024ME046",
+      "name": "Arjun Rao",
+      "course": "B.Tech",
+      "department": "Mechanical",
+      "academic_year": "4th Year",
+      "validity": "2026",
+      "section": "A",
+      "semester": "VII",
+      "email": "arjun@gmail.com",
+      "phone": "9876543215",
+      "photo_url": null,
+      "created_at": "2026-07-18T06:06:11.666Z"
+    },
+    {
+      "id": 7,
+      "register_number": "2024EC012",
+      "name": "Divya Nair",
+      "course": "B.Tech",
+      "department": "ECE",
+      "academic_year": "3rd Year",
+      "validity": "2027",
+      "section": "A",
+      "semester": "V",
+      "email": "divya@gmail.com",
+      "phone": "9876543216",
+      "photo_url": null,
+      "created_at": "2026-07-18T06:06:11.666Z"
+    },
+    {
+      "id": 8,
+      "register_number": "2024CS104",
+      "name": "Karan Malhotra",
+      "course": "B.Tech",
+      "department": "CSE",
+      "academic_year": "2nd Year",
+      "validity": "2028",
+      "section": "C",
+      "semester": "III",
+      "email": "karan@gmail.com",
+      "phone": "9876543217",
+      "photo_url": null,
+      "created_at": "2026-07-18T06:06:11.666Z"
     }
   ],
   "remarks": [
@@ -439,5 +620,44 @@
       "recorded_by": 2,
       "created_at": "2026-07-12T06:28:59.551Z"
     }
-  ]
+  ],
+  "departments": [
+    {
+      "id": 1,
+      "name": "CSE"
+    },
+    {
+      "id": 2,
+      "name": "ECE"
+    },
+    {
+      "id": 3,
+      "name": "Mechanical"
+    },
+    {
+      "id": 4,
+      "name": "Civil"
+    },
+    {
+      "id": 5,
+      "name": "MBA"
+    }
+  ],
+  "activity_logs": [
+    {
+      "id": 1,
+      "user_name": "System Admin",
+      "user_role": "Admin",
+      "action": "System Initialized",
+      "date": "19-Jul-2026",
+      "time": "08:30 AM"
+    }
+  ],
+  "system_settings": {
+    "college_name": "Modern Institute College",
+    "college_logo": "",
+    "academic_year": "2025-2026",
+    "remark_categories": "Late-comer, Non-uniform, Indiscipline, Others",
+    "password_policy": "{\"minLength\":6,\"requireSpecial\":false}"
+  }
 }
